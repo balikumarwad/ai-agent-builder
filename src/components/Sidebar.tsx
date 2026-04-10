@@ -62,16 +62,15 @@ export function Sidebar({
           </div>
 
           <div className="space-y-4">
-            <div className={`${cardClass} p-4 group`}>
-              <div className={`flex items-center justify-between ${titleClass}`}>
+            <div className={`${cardClass} p-4`}>
+              <div className={`flex items-center ${titleClass}`}>
                 <span className="flex items-center gap-2">
                   <Cpu className={isDark ? 'w-4 h-4 text-cyan-300' : 'w-4 h-4 text-sky-500'} />
                   Available Skills
                 </span>
-                <span className="text-xs uppercase tracking-[0.22em] text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">scroll</span>
               </div>
               <p className={textClass}>Drag skills to add them to your agent</p>
-              <div className="mt-4 max-h-72 overflow-y-auto space-y-3 pr-2 glass-scrollbar">
+              <div className="mt-4 max-h-72 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {data.skills.map((s) => (
                   <DraggableCard
                     key={s.id}
@@ -86,16 +85,15 @@ export function Sidebar({
               </div>
             </div>
 
-            <div className={`${cardClass} p-4 group`}>
-              <div className={`flex items-center justify-between ${titleClass}`}>
+            <div className={`${cardClass} p-4`}>
+              <div className={`flex items-center ${titleClass}`}>
                 <span className="flex items-center gap-2">
                   <Layers className={isDark ? 'w-4 h-4 text-cyan-300' : 'w-4 h-4 text-sky-500'} />
                   Available Layers
                 </span>
-                <span className="text-xs uppercase tracking-[0.22em] text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">scroll</span>
               </div>
               <p className={textClass}>Drag layers to enhance your agent</p>
-              <div className="mt-4 max-h-72 overflow-y-auto space-y-3 pr-2 glass-scrollbar">
+              <div className="mt-4 max-h-72 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {data.layers.map((l) => (
                   <DraggableCard
                     key={l.id}
@@ -112,21 +110,23 @@ export function Sidebar({
           </div>
 
           <div className={`${cardClass} p-4`}>
-            <label htmlFor="provider-select" className={labelClass}>
-              <Bot className={isDark ? 'w-4 h-4 text-cyan-300' : 'w-4 h-4 text-sky-500'} />
-              <span>AI Provider</span>
-            </label>
-            <select
-              id="provider-select"
-              value={selectedProvider}
-              onChange={(e) => onProviderChange(e.target.value)}
-              className={selectClass}
-            >
-              <option value="" className={isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-950'}>-- Select an AI Provider --</option>
-              {['Gemini', 'ChatGPT', 'Kimi', 'Claude', 'DeepSeek'].map((provider) => (
-                <option key={provider} value={provider} className={isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-950'}>{provider}</option>
-              ))}
-            </select>
+            <div className="flex flex-col gap-3">
+              <label htmlFor="provider-select" className={labelClass}>
+                <Bot className={isDark ? 'w-4 h-4 text-cyan-300' : 'w-4 h-4 text-sky-500'} />
+                <span>AI Provider</span>
+              </label>
+              <select
+                id="provider-select"
+                value={selectedProvider}
+                onChange={(e) => onProviderChange(e.target.value)}
+                className={selectClass}
+              >
+                <option value="" className={isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-950'}>-- Select an AI Provider --</option>
+                {['Gemini', 'ChatGPT', 'Kimi', 'Claude', 'DeepSeek'].map((provider) => (
+                  <option key={provider} value={provider} className={isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-950'}>{provider}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       )}

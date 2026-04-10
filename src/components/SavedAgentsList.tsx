@@ -63,7 +63,7 @@ export function SavedAgentsList({
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {savedAgents.map((agent) => (
             <div key={agent.id} className={cardClass}>
               <div className="mb-4 flex items-center justify-between gap-3">

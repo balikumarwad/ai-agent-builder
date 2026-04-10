@@ -63,6 +63,14 @@ function App() {
     setSelectedLayers(selectedLayers.filter(id => id !== layerId))
   }
 
+  const handleAddSkill = (skillId: string) => {
+    setSelectedSkills(current => current.includes(skillId) ? current : [...current, skillId])
+  }
+
+  const handleAddLayer = (layerId: string) => {
+    setSelectedLayers(current => current.includes(layerId) ? current : [...current, layerId])
+  }
+
   const handleSaveAgent = () => {
     if (!agentName.trim()) {
       alert('Please enter a name for your agent.')
@@ -129,16 +137,12 @@ function App() {
 
     // Handle dropping skills into workspace
     if (draggedData.type === 'skill' && dropZoneId === 'workspace-skills-drop') {
-      if (!selectedSkills.includes(draggedData.id)) {
-        setSelectedSkills([...selectedSkills, draggedData.id])
-      }
+      handleAddSkill(draggedData.id)
     }
 
     // Handle dropping layers into workspace
     if (draggedData.type === 'layer' && dropZoneId === 'workspace-layers-drop') {
-      if (!selectedLayers.includes(draggedData.id)) {
-        setSelectedLayers([...selectedLayers, draggedData.id])
-      }
+      handleAddLayer(draggedData.id)
     }
   }
 
@@ -155,7 +159,7 @@ function App() {
         <Header theme={theme} onToggleTheme={toggleTheme} />
 
         <main className="relative container mx-auto px-6 pb-12">
-          <div className="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-8">
+          <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[360px_1fr]">
             <Sidebar
               data={data}
               selectedProfile={selectedProfile}
@@ -165,7 +169,7 @@ function App() {
               onProviderChange={handleProviderChange}
             />
 
-            <div className="space-y-8">
+            <div className="flex h-full flex-col gap-8">
               <Workspace
                 data={data}
                 selectedProfile={selectedProfile}
@@ -176,21 +180,20 @@ function App() {
                 theme={theme}
                 onRemoveSkill={handleRemoveSkill}
                 onRemoveLayer={handleRemoveLayer}
+                onAddSkill={handleAddSkill}
+                onAddLayer={handleAddLayer}
                 onAgentNameChange={setAgentName}
                 onSaveAgent={handleSaveAgent}
               />
+              <SavedAgentsList
+                savedAgents={savedAgents}
+                data={data}
+                theme={theme}
+                onLoadAgent={handleLoadAgent}
+                onDeleteAgent={handleDeleteAgent}
+                onClearAll={handleClearAll}
+              />
             </div>
-          </div>
-
-          <div className="mt-8">
-            <SavedAgentsList
-              savedAgents={savedAgents}
-              data={data}
-              theme={theme}
-              onLoadAgent={handleLoadAgent}
-              onDeleteAgent={handleDeleteAgent}
-              onClearAll={handleClearAll}
-            />
           </div>
         </main>
       </div>

@@ -1,6 +1,7 @@
 import type { AgentData } from '../types'
 import { DroppableZone } from './DroppableZone'
 import { Save, X, Bot, Cpu } from 'lucide-react'
+import { useState } from 'react'
 
 interface WorkspaceProps {
   data: AgentData
@@ -12,6 +13,8 @@ interface WorkspaceProps {
   theme: 'dark' | 'light'
   onRemoveSkill: (skillId: string) => void
   onRemoveLayer: (layerId: string) => void
+  onAddSkill: (skillId: string) => void
+  onAddLayer: (layerId: string) => void
   onAgentNameChange: (name: string) => void
   onSaveAgent: () => void
 }
@@ -26,13 +29,16 @@ export function Workspace({
   theme,
   onRemoveSkill,
   onRemoveLayer,
+  onAddSkill,
+  onAddLayer,
   onAgentNameChange,
   onSaveAgent,
 }: WorkspaceProps) {
+  const [openDropdown, setOpenDropdown] = useState<'skills' | 'layers' | null>(null)
   const isDark = theme === 'dark'
   const sectionClass = isDark
-    ? 'sticky top-4 rounded-[2rem] border border-slate-800/80 bg-slate-950/35 p-6 shadow-[0_30px_80px_-55px_rgba(59,130,246,0.7)] backdrop-blur-xl min-h-[700px] overflow-y-auto text-slate-100'
-    : 'sticky top-4 rounded-[2rem] border border-slate-200/80 bg-white/90 p-6 shadow-[0_30px_80px_-55px_rgba(148,163,184,0.15)] min-h-[700px] overflow-y-auto text-slate-950'
+    ? 'sticky top-4 flex h-auto flex-col rounded-[2rem] border border-slate-800/80 bg-slate-950/35 p-6 shadow-[0_30px_80px_-55px_rgba(59,130,246,0.7)] backdrop-blur-xl text-slate-100'
+    : 'sticky top-4 flex h-auto flex-col rounded-[2rem] border border-slate-200/80 bg-white/90 p-6 shadow-[0_30px_80px_-55px_rgba(148,163,184,0.15)] text-slate-950'
   const headerTextClass = isDark ? 'text-2xl font-semibold text-slate-100' : 'text-2xl font-semibold text-slate-950'
   const descriptionClass = isDark ? 'text-sm text-slate-400' : 'text-sm text-slate-600'
   const cardClass = isDark
@@ -47,9 +53,16 @@ export function Workspace({
   const inputClass = isDark
     ? 'w-full rounded-3xl border border-slate-700/80 bg-slate-900/80 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20'
     : 'w-full rounded-3xl border border-slate-300/80 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20'
+  const availableSkills = data.skills.filter(skill => !selectedSkills.includes(skill.id))
+  const availableLayers = data.layers.filter(layer => !selectedLayers.includes(layer.id))
+  const dropdownItemClass = isDark
+    ? 'w-full rounded-xl border border-slate-700/70 bg-slate-900/80 px-3 py-2 text-left text-sm text-slate-100 transition hover:border-cyan-400/40 hover:bg-slate-800'
+    : 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-950 transition hover:border-sky-300 hover:bg-slate-50'
 
   return (
     <section className={sectionClass}>
+      {openDropdown && <div className="fixed inset-0 z-40" onClick={() => setOpenDropdown(null)} />}
+
       <div className="mb-6 flex items-center gap-3">
         <Bot className={isDark ? 'w-6 h-6 text-cyan-300' : 'w-6 h-6 text-sky-500'} />
         <div>
@@ -91,6 +104,30 @@ export function Workspace({
             title="Selected Skills"
             emptyMessage="Drop skills here or use the sidebar"
             theme={theme}
+            isDropdownOpen={openDropdown === 'skills'}
+            onAddClick={() => setOpenDropdown(current => current === 'skills' ? null : 'skills')}
+            dropdownContent={
+              availableSkills.length > 0 ? (
+                <div className="space-y-2">
+                  {availableSkills.map(skill => (
+                    <button
+                      key={skill.id}
+                      type="button"
+                      onClick={() => {
+                        onAddSkill(skill.id)
+                        setOpenDropdown(null)
+                      }}
+                      className={dropdownItemClass}
+                    >
+                      <div className="font-medium">{skill.name}</div>
+                      <div className={isDark ? 'text-xs text-slate-400' : 'text-xs text-slate-500'}>{skill.category}</div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={isDark ? 'text-sm text-slate-400' : 'text-sm text-slate-500'}>All skills are already equipped.</p>
+              )
+            }
           >
             {selectedSkills.length > 0 && data ? (
               <div className="space-y-3">
@@ -129,6 +166,30 @@ export function Workspace({
             title="Selected Layers"
             emptyMessage="Drop layers here or use the sidebar"
             theme={theme}
+            isDropdownOpen={openDropdown === 'layers'}
+            onAddClick={() => setOpenDropdown(current => current === 'layers' ? null : 'layers')}
+            dropdownContent={
+              availableLayers.length > 0 ? (
+                <div className="space-y-2">
+                  {availableLayers.map(layer => (
+                    <button
+                      key={layer.id}
+                      type="button"
+                      onClick={() => {
+                        onAddLayer(layer.id)
+                        setOpenDropdown(null)
+                      }}
+                      className={dropdownItemClass}
+                    >
+                      <div className="font-medium">{layer.name}</div>
+                      <div className={isDark ? 'text-xs text-slate-400' : 'text-xs text-slate-500'}>{layer.type}</div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className={isDark ? 'text-sm text-slate-400' : 'text-sm text-slate-500'}>All layers are already equipped.</p>
+              )
+            }
           >
             {selectedLayers.length > 0 && data ? (
               <div className="space-y-3">
@@ -163,45 +224,44 @@ export function Workspace({
           </DroppableZone>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
-          <div className={dashedCardClass}>
-            <div className={isDark ? 'flex items-center gap-3 text-sm font-semibold text-slate-300 mb-3' : 'flex items-center gap-3 text-sm font-semibold text-slate-700 mb-3'}>
-              <Cpu className={isDark ? 'w-4 h-4 text-cyan-300' : 'w-4 h-4 text-sky-500'} />
-              <span>AI Provider</span>
-            </div>
-            {selectedProvider ? (
-              <div className={smallCardClass}>
-                {selectedProvider}
-              </div>
-            ) : (
-              <div className={smallCardClass.replace('text-slate-100', isDark ? 'text-slate-500' : 'text-slate-600')}>
-                No provider selected
-              </div>
-            )}
+        <div className={dashedCardClass}>
+          <div className={isDark ? 'flex items-center gap-3 text-sm font-semibold text-slate-300 mb-3' : 'flex items-center gap-3 text-sm font-semibold text-slate-700 mb-3'}>
+            <Cpu className={isDark ? 'w-4 h-4 text-cyan-300' : 'w-4 h-4 text-sky-500'} />
+            <span>AI Provider</span>
           </div>
+          {selectedProvider ? (
+            <div className={smallCardClass}>
+              {selectedProvider}
+            </div>
+          ) : (
+            <div className={smallCardClass.replace('text-slate-100', isDark ? 'text-slate-500' : 'text-slate-600')}>
+              No provider selected
+            </div>
+          )}
+        </div>
+      </div>
 
-          <div className={`${cardClass} p-5`}>
-            <div className={isDark ? 'mb-3 text-sm uppercase tracking-[0.2em] text-slate-500' : 'mb-3 text-sm uppercase tracking-[0.2em] text-slate-500'}>Save agent</div>
-            <div className="flex flex-col gap-3">
-              <input
-                type="text"
-                placeholder="Agent Name"
-                value={agentName}
-                onChange={e => onAgentNameChange(e.target.value)}
-                className={inputClass}
-              />
-              <button
-                onClick={onSaveAgent}
-                className={isDark
-                  ? 'inline-flex items-center justify-center gap-2 rounded-3xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400'
-                  : 'inline-flex items-center justify-center gap-2 rounded-3xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-400'
-                }
-              >
-                <Save className="w-4 h-4" />
-                Save Agent
-              </button>
-            </div>
-          </div>
+      <div className={`${cardClass} mt-6 w-full`}>
+        <div className={isDark ? 'mb-3 text-sm uppercase tracking-[0.2em] text-slate-500' : 'mb-3 text-sm uppercase tracking-[0.2em] text-slate-500'}>Save agent</div>
+        <div className="flex w-full flex-col items-center gap-4 p-6 md:flex-row">
+          <input
+            type="text"
+            placeholder="Agent Name"
+            value={agentName}
+            onChange={e => onAgentNameChange(e.target.value)}
+            className={`${inputClass} min-w-0 flex-1`}
+          />
+          <button
+            type="button"
+            onClick={onSaveAgent}
+            className={isDark
+              ? 'inline-flex shrink-0 items-center justify-center gap-2 rounded-3xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400'
+              : 'inline-flex shrink-0 items-center justify-center gap-2 rounded-3xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-400'
+            }
+          >
+            <Save className="w-4 h-4" />
+            Save Agent
+          </button>
         </div>
       </div>
     </section>

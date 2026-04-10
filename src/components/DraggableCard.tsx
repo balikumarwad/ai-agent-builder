@@ -12,14 +12,12 @@ interface DraggableCardProps {
 }
 
 export function DraggableCard({ id, name, category, description, type, theme = 'dark' }: DraggableCardProps) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id,
     data: {
       type: type || 'skill',
       id,
       name,
-      category,
-      description,
     },
   })
 
@@ -37,7 +35,7 @@ export function DraggableCard({ id, name, category, description, type, theme = '
       style={style}
       {...listeners}
       {...attributes}
-      className={`relative flex flex-col p-2 space-y-2 rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 group ${isDark ? 'bg-slate-900/80 border border-slate-800/70 hover:border-cyan-400 hover:bg-slate-800/70 shadow-[0_12px_30px_-18px_rgba(56,189,248,0.18)]' : 'bg-white/90 border border-slate-200 hover:border-sky-300 hover:bg-slate-100 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.06)]'}`}
+      className={`relative flex flex-col p-2 space-y-2 rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 group ${isDragging ? 'opacity-40' : 'opacity-100'} ${isDark ? 'bg-slate-900/80 border border-slate-800/70 hover:border-cyan-400 hover:bg-slate-800/70 shadow-[0_12px_30px_-18px_rgba(56,189,248,0.18)]' : 'bg-white/90 border border-slate-200 hover:border-sky-300 hover:bg-slate-100 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.06)]'}`}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">

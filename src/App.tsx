@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { DndContext } from '@dnd-kit/core'
+import { DndContext, DragOverlay } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
+import { Sparkles, Layers } from 'lucide-react'
 import { agentData } from './data'
 import { useAnalyticsTracker } from './useAnalyticsTracker'
 import type { SavedAgent } from './types'
@@ -17,6 +18,7 @@ function App() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [selectedLayers, setSelectedLayers] = useState<string[]>([])
   const [selectedProvider, setSelectedProvider] = useState<string>('')
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   // Saving states
   const [agentName, setAgentName] = useState('')
@@ -121,6 +123,7 @@ function App() {
   }, [theme])
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null)
     const { active, over } = event
 
     // Only process if dropped over a valid drop zone
@@ -146,11 +149,21 @@ function App() {
     }
   }
 
+  const activeSkill = activeId ? data.skills.find(skill => skill.id === activeId) : null
+  const activeLayer = activeId ? data.layers.find(layer => layer.id === activeId) : null
+  const activeItem = activeSkill || activeLayer
+  const activeType: 'skill' | 'layer' | null = activeSkill ? 'skill' : activeLayer ? 'layer' : null
+  const overlayIsDark = theme === 'dark'
+  const OverlayIcon = activeType === 'layer' ? Layers : Sparkles
+
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext
+      onDragStart={(event) => setActiveId(event.active.id as string)}
+      onDragEnd={handleDragEnd}
+    >
       <div
         data-theme={theme}
-        className={`relative min-h-screen overflow-hidden font-sans ${theme === 'dark'
+        className={`relative min-h-screen overflow-hidden px-6 pt-4 font-sans sm:px-12 ${theme === 'dark'
           ? 'bg-[#040710] text-slate-100'
           : 'bg-slate-100 text-slate-950'
         }`}
@@ -158,7 +171,7 @@ function App() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_20%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.16),_transparent_18%)]" />
         <Header theme={theme} onToggleTheme={toggleTheme} />
 
-        <main className="relative container mx-auto px-6 pb-12">
+        <main className="relative container mx-auto pb-12">
           <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[360px_1fr]">
             <Sidebar
               data={data}
@@ -197,6 +210,37 @@ function App() {
           </div>
         </main>
       </div>
+      <DragOverlay>
+        {activeItem && activeType ? (
+          <div
+            className={`w-[280px] rounded-2xl border p-2 shadow-2xl ${overlayIsDark
+              ? 'border-slate-800/70 bg-slate-900/95 text-slate-100'
+              : 'border-slate-200 bg-white text-slate-950'
+            }`}
+            style={{ zIndex: 1000 }}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-xl border ${overlayIsDark ? 'border-slate-800/70 bg-slate-950/70 text-cyan-300' : 'border-slate-200 bg-slate-200 text-sky-500'}`}>
+                  <OverlayIcon className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className={overlayIsDark ? 'text-sm font-semibold text-slate-100' : 'text-sm font-semibold text-slate-950'}>{activeItem.name}</p>
+                  <p className={overlayIsDark ? 'text-[10px] uppercase tracking-[0.25em] text-slate-400' : 'text-[10px] uppercase tracking-[0.25em] text-slate-500'}>
+                    {'category' in activeItem ? activeItem.category : activeItem.type}
+                  </p>
+                </div>
+              </div>
+              <span className={overlayIsDark ? 'rounded-full border border-slate-700 bg-slate-800 px-2 py-0.5 text-xs font-mono text-slate-400' : 'rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-600'}>
+                {activeType}
+              </span>
+            </div>
+            <p className={overlayIsDark ? 'mt-2 text-xs text-slate-400' : 'mt-2 text-xs text-slate-600'}>
+              {activeItem.description}
+            </p>
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   )
 }

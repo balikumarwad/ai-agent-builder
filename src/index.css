@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --font-family-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* Custom glassy scrollbar: dark and subtle for scrollable containers */
+.glass-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(148,163,184,0.35) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.glass-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.glass-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.glass-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148,163,184,0.2);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.glass-scrollbar:hover::-webkit-scrollbar-thumb,
+.glass-scrollbar:active::-webkit-scrollbar-thumb {
+  background: rgba(148,163,184,0.35);
+}
